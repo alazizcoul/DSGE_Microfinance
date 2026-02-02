@@ -196,10 +196,9 @@ ROA        = exp(J_m)/exp(B) ;
 
 ////***********   1) PATIENT HHs ********************************************************6
 
-  (1-a_i)*exp(ee_z)*(exp(c_p) - a_i*exp(c_p(-1)))^(-1) = exp(lam_p); // CON rescaling  (1) where a_p = a_e = a_i
+  (1-a_p)*exp(ee_z)*(exp(c_p) - a_i*exp(c_p(-1)))^(-1) = exp(lam_p); // CON rescaling  (1) where a_p = a_e = a_i
 
 exp(lam_p)  = beta_p * exp(lam_p(+1)) * (1+exp(r_d)) / exp(pie(+1)); // (3)
-
 
 (1 - exp(eps_l)) * exp(l_p) + exp(l_p) ^(1+phi) / exp(w_p) * exp(eps_l)/exp(lam_p) 
                                          - kappa_w *( exp(pie_wp)     - exp(pie(-1)) ^ ind_w * piss ^ (1-ind_w) ) * exp(pie_wp)
@@ -215,7 +214,6 @@ exp(c_p)  + exp(d_p)  = exp(w_p) * exp(l_p)
 
   (1-a_i)*exp(ee_z)*(exp(c_i) - a_i*exp(c_i(-1)))^(-1)  = exp(lam_i); // CON rescaling (7)
 
-
 (1 - exp(eps_l)) * exp(l_i) + exp(l_i) ^(1+phi) / exp(w_i) * exp(eps_l)/exp(lam_i) 
                                          - kappa_w *( exp(pie_wi)     - exp(pie(-1))^ind_w * piss ^ (1-ind_w) ) * exp(pie_wi)
    +  beta_i * exp(lam_i(+1))/exp(lam_i) * kappa_w *( exp(pie_wi(+1)) - exp(pie)    ^ind_w * piss ^ (1-ind_w) ) * exp(pie_wi(+1)) ^2 / exp(pie(+1)) = 0; // (10)
@@ -225,7 +223,6 @@ exp(pie_wi) = exp(w_i) / exp(w_i(-1)) * exp(pie); // (11)
 exp(c_i)  + (1-exp(zeta_i))*(1+exp(r_bh(-1)))*exp(b_i(-1))/exp(pie) =  exp(w_i) * exp(l_i) + exp(b_i)  ;  // (12) budget constraint
 
 (1+exp(r_bh)) * exp(b_i) = exp(m_i) * exp(w_i(+1)) *exp(l_i) * exp(pie_wi(+1));     // (13) borrowing constraint impatient household 
-
 
 ////***********  3) CAPITAL PRODUCERS *****************************************************
 
@@ -439,7 +436,7 @@ lam_i = log( 1/exp(c_i)) ;
 lam_p = log( 1/exp(c_p)) ; 
 lam_e = log( 1/exp(c_e)) ; 
 
-s_i = log (exp(lam_i) / (1 + exp(r_bh)) * ( 1 - beta_i * (1 - exp(zeta_i) )  )) ;
+//s_i = log (exp(lam_i) / (1 + exp(r_bh)) * ( 1 - beta_i * (1 - exp(zeta_i) )  )) ;
 s_e = log (exp(lam_e) / (1 + exp(r_be)) * ( 1 - beta_e * (1 - exp(zeta_e) ) )) ;
 
 b_ee = b_e ;
