@@ -13,7 +13,6 @@
 
 var 
 c_p       // 1  PATIENT   HHs
-//h_p       // 2  PATIENT   HHs
 d_p       // 3  PATIENT   HHs
 l_p       // 4  PATIENT   HHs
 lam_p     // 5  PATIENT   HHs
@@ -21,7 +20,6 @@ J_R       // 6  PATIENT   HHs
 j_m       // 7  PATIENT   HHs
 pie_wp    // 8  PATIENT   HHs  
 c_i       // 9  IMPATIENT HHs
-//h_i       // 10 IMPATIENT HHs
 b_i       // 11 IMPATIENT HHs 
 l_i       // 12 IMPATIENT HHs
 lam_i     // 13 IMPATIENT HHs
