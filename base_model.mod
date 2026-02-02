@@ -154,10 +154,8 @@ vi_ss        = nu_bar + chi_nu_zeta*( 0.5 * zeta_e_ss + 0.5 zeta_i_ss - zeta_bar
 %=========================================================================================================================================================================================================
 
 
-/*
-Sous hypothèse zeta_e_ss = zeta_i_ss et eps_be = eps_bh
-Or on a: deltakm  /omega_m    = (1-zeta_i_ss)*(1 + r_bh_ss) b_i /K_m + (1-zeta_e_ss)*(1 + r_be_ss) b_e /K_m - r_d * D/K_m
-*/
+// Sous hypothèse zeta_e_ss = zeta_i_ss et eps_be = eps_bh
+// Or on a: deltakm  /omega_m    = (1-zeta_i_ss)*(1 + r_bh_ss) b_i /K_m + (1-zeta_e_ss)*(1 + r_be_ss) b_e /K_m - r_d * D/K_m
 %=========================================================================================================================================================================================================
 omega_m      = 1 ;
 deltakm    = omega_m * ( (1-zeta_i_ss)*(1 + r_bh_ss)/vi_ss - 1/beta_p *(1 - vi_ss)/vi_ss )
