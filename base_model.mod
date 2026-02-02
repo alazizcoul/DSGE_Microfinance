@@ -140,7 +140,7 @@ zeta_i_ss    = 0.07 ;
 
 r_ib_ss      = (1/beta_p - 1) * (eps_d-1)/eps_d ;                       % steady state gross nominal interest rate 
 r_be_ss      = (r_ib_ss + zeta_e_ss)*eps_be/((eps_be-1)*(1 - zeta_e_ss)) ;								   % steady state interest rate on loans to E
-r_bh_ss      = (r_ib_ss + zeta_i_ss)*eps_bh/((eps_bh-1)*(1 - zeta_e_ss)) ;								   % steady state interest rate on loans to H
+r_bh_ss      = (r_ib_ss + zeta_i_ss)*eps_bh/((eps_bh-1)*(1 - zeta_i_ss)) ;								   % steady state interest rate on loans to H
 
 
 % =============Règle d'évolution de la norme de capitalisation========
@@ -150,7 +150,7 @@ rho_vi      = 0 ;  %0.96264;      % persistence de la norme de solvabilité (ici
 zeta_bar    = 0.03; %-0.07;     % Niveau cible du risque de crédit pour l'AM
 nu_bar      = 0.15 ;         % Niveau cible de la norme de cap
 
-vi_ss        = nu_bar + chi_nu_zeta*(zeta_ss - zeta_bar) ;         %      Norme  de capitalisation  à l'état stationnaire
+vi_ss        = nu_bar + chi_nu_zeta*( 0.5 * zeta_e_ss + 0.5 zeta_i_ss - zeta_bar) ;         %      Norme  de capitalisation  à l'état stationnaire
 %=========================================================================================================================================================================================================
 
 
@@ -286,7 +286,7 @@ exp(b_h) + exp(b_e)  =  exp(d_b) + exp(K_m) ;
 
 // (31) overall microfinance profits:
 exp(j_m) = +((1 -exp(zeta_i(+1)))* exp(r_bh) - exp(zeta_i(+1)))*  exp(b_h)
-           +((1 -exp(zeta_e(+1)))* exp(r_be) -zeta(+1)) *  exp(b_e) 
+           +((1 -exp(zeta_e(+1)))* exp(r_be) -exp(zeta_e(+1))) *  exp(b_e) 
            - exp(r_d)   *  exp(d_b)           
            - kappa_d/2  * ( (exp(r_d)/exp(r_d(-1))-1)^2)   * exp(r_d) *exp(d_b) 
            - kappa_be/2 * ( (exp(r_be)/exp(r_be(-1))-1)^2) * exp(r_be)*exp(b_e) 
