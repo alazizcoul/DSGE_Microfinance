@@ -134,8 +134,8 @@ gamma_e      = 1; //1 - gamma_p - gamma_i;								   % shares of entrepreneurs
 deltak       = 0.035; %0.025                                                      % depreciation rate for physical capital
 piss         = 1;                                                          % steady state gross inflation rate
 
-%zeta_e_ss    = 
-%zeta_i_ss    = 
+zeta_e_ss    = 0.07 ;
+zeta_i_ss    = 0.07 ;
 
 r_ib_ss      = (1/beta_p - 1) * (eps_d-1)/eps_d ;                       % steady state gross nominal interest rate 
 r_be_ss      = (r_ib_ss + zeta_e_ss)*eps_be/((eps_be-1)*(1 - zeta_e_ss)) ;								   % steady state interest rate on loans to E
@@ -149,13 +149,14 @@ rho_vi      = 0 ;  %0.96264;      % persistence de la norme de solvabilité (ici
 zeta_bar    = 0.03; %-0.07;     % Niveau cible du risque de crédit pour l'AM
 nu_bar      = 0.15 ;         % Niveau cible de la norme de cap
 
-vi_ss        = nu_bar + chi_nu_zeta*(zeta_ss - zeta_bar) ;         %      Norme   à l'état stationnaire
+vi_ss        = nu_bar + chi_nu_zeta*(zeta_ss - zeta_bar) ;         %      Norme  de capitalisation  à l'état stationnaire
 %=========================================================================================================================================================================================================
 
 
-%Sous hypothèse zeta_e_ss = zeta_i_ss et eps_be = eps_bh
-//Or on a: 
-//deltakm  /omega_m    = (1-zeta_i_ss)*(1 + r_bh_ss) b_i /K_m + (1-zeta_e_ss)*(1 + r_be_ss) b_e /K_m - r_d * D/K_m
+/*
+Sous hypothèse zeta_e_ss = zeta_i_ss et eps_be = eps_bh
+Or on a: deltakm  /omega_m    = (1-zeta_i_ss)*(1 + r_bh_ss) b_i /K_m + (1-zeta_e_ss)*(1 + r_be_ss) b_e /K_m - r_d * D/K_m
+*/
 %=========================================================================================================================================================================================================
 omega_m      = 1 ;
 deltakm    = omega_m * ( (1-zeta_i_ss)*(1 + r_bh_ss)/vi_ss - 1/beta_p *(1 - vi_ss)/vi_ss )
