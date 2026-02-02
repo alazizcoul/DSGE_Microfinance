@@ -195,7 +195,7 @@ ROA        = exp(J_m)/exp(B) ;
 
 ////***********   1) PATIENT HHs ********************************************************6
 
-  (1-a_p)*exp(ee_z)*(exp(c_p) - a_i*exp(c_p(-1)))^(-1) = exp(lam_p); // CON rescaling  (1) where a_p = a_e = a_i
+(1-a_p)*exp(ee_z)*(exp(c_p) - a_p*exp(c_p(-1)))^(-1) = exp(lam_p); // CON rescaling  (1) where a_p = a_e = a_i
 
 exp(lam_p)  = beta_p * exp(lam_p(+1)) * (1+exp(r_d)) / exp(pie(+1)); // (3)
 
@@ -206,12 +206,13 @@ exp(lam_p)  = beta_p * exp(lam_p(+1)) * (1+exp(r_d)) / exp(pie(+1)); // (3)
 exp(pie_wp) = exp(w_p) / exp(w_p(-1)) * exp(pie); // definition of wage inflation (5)
 
 exp(c_p)  + exp(d_p)  = exp(w_p) * exp(l_p)
-   + (1+exp(r_d(-1)))*exp(d_p(-1))/exp(pie) + exp(J_R)/gamma_p ;  // patient household budget constraint (6), exp(J_R)/gamma_p = t_p
+   + (1+exp(r_d(-1)))*exp(d_p(-1))/exp(pie) + exp(t_p)  ;  // patient household budget constraint (6), exp(J_R)/gamma_p = t_p
 
+exp(t_p) = exp(J_R)/gamma_p +  (1-omega_m)* J_m
 
 ////***********   2) IMPATIENT HHs ********************************************************7
 
-  (1-a_i)*exp(ee_z)*(exp(c_i) - a_i*exp(c_i(-1)))^(-1)  = exp(lam_i); // CON rescaling (7)
+(1-a_i)*exp(ee_z)*(exp(c_i) - a_i*exp(c_i(-1)))^(-1)  = exp(lam_i); // CON rescaling (7)
 
 (1 - exp(eps_l)) * exp(l_i) + exp(l_i) ^(1+phi) / exp(w_i) * exp(eps_l)/exp(lam_i) 
                                          - kappa_w *( exp(pie_wi)     - exp(pie(-1))^ind_w * piss ^ (1-ind_w) ) * exp(pie_wi)
@@ -233,8 +234,8 @@ exp(K) = (1-deltak) * exp(K(-1)) + ( 1 - kappa_i/2 * (exp(I)*exp(ee_qk)/exp(I(-1
 
 ////************  4) ENTREPRENEURS *********************************************************
 
-  (1-a_i)*(exp(c_e) - a_i*exp(c_e(-1)))^(-1) = exp(lam_e);         // CON rescaling  (16) FOC consumption
-//        (exp(c_e) - a_i*exp(c_e(-1)))^(-1) = exp(lam_e);         // SENZA rescaling
+(1-a_e)*(exp(c_e) - a_i*exp(c_e(-1)))^(-1) = exp(lam_e);         // CON rescaling  (16) FOC consumption
+//        (exp(c_e) - a_e*exp(c_e(-1)))^(-1) = exp(lam_e);         // SENZA rescaling
 
 exp(s_e)  * exp(m_e) * exp(q_k(+1)) * exp(pie(+1)) * (1-deltak) 
      + beta_e * exp(lam_e(+1)) * ( exp(q_k(+1))*(1-deltak) + exp(r_k(+1))*exp(u(+1))
@@ -282,7 +283,7 @@ exp(b_h) + exp(b_e)  =  exp(d_b) + exp(K_m) ;
 (+ 1 - exp(mk_bh)/(exp(mk_bh)-1) )*(1 - exp(zeta_i(+1)))  +  exp(mk_bh)/(exp(mk_bh)-1)  * (exp(R_b) + exp(zeta_i(+1)))/exp(r_bh) - kappa_bh * (exp(r_bh)/exp(r_bh(-1)) - ( exp(r_bh(-1)) / exp(r_bh(-2)))^ind_bh ) * exp(r_bh)/exp(r_bh(-1)) 
   + beta_p * ( exp(lam_p(+1))/exp(lam_p) ) * kappa_bh * ( exp(r_bh(+1))/exp(r_bh) - ( exp(r_bh)/exp(r_bh(-1)))^ind_bh ) * ( (exp(r_bh(+1))/exp(r_bh))^2 ) * (exp(b_h(+1))/exp(b_h)) = 0;//
 
-// (31) overall bank profits:
+// (31) overall microfinance profits:
 exp(j_m) = +((1 -exp(zeta_i(+1)))* exp(r_bh) - exp(zeta_i(+1)))*  exp(b_h)
            +((1 -exp(zeta_e(+1)))* exp(r_be) -zeta(+1)) *  exp(b_e) 
            - exp(r_d)   *  exp(d_b)           
