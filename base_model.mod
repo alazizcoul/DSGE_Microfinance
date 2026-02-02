@@ -16,6 +16,7 @@ c_p       // 1  PATIENT   HHs
 d_p       // 3  PATIENT   HHs
 l_p       // 4  PATIENT   HHs
 lam_p     // 5  PATIENT   HHs
+t_p       //    PATIENT   HHs
 J_R       // 6  PATIENT   HHs
 j_m       // 7  PATIENT   HHs
 pie_wp    // 8  PATIENT   HHs  
@@ -208,7 +209,7 @@ exp(pie_wp) = exp(w_p) / exp(w_p(-1)) * exp(pie); // definition of wage inflatio
 exp(c_p)  + exp(d_p)  = exp(w_p) * exp(l_p)
    + (1+exp(r_d(-1)))*exp(d_p(-1))/exp(pie) + exp(t_p)  ;  // patient household budget constraint (6), exp(J_R)/gamma_p = t_p
 
-exp(t_p) = exp(J_R)/gamma_p +  (1-omega_m)* J_m
+exp(t_p) = exp(J_R)/gamma_p +  (1-omega_m)* exp(J_m) ;
 
 ////***********   2) IMPATIENT HHs ********************************************************7
 
