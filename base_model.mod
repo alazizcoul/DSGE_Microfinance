@@ -317,13 +317,13 @@ exp(BH)             = gamma_b * exp(b_h);
 exp(BE)             = gamma_b * exp(b_e);
 exp(B)              = (exp(BH) + exp(BE)); //
 exp(D)              = gamma_p * exp(d_p) ; // oppure: (gamma_b * exp(d_b))
-exp(Y)              = gamma_e * exp(y_e); //
 exp(J_m)            = gamma_b * exp(j_m);  // 
 gamma_e * exp(l_pd) = gamma_p * exp(l_p);
 gamma_e * exp(l_id) = gamma_i * exp(l_i);
 exp(K)              = gamma_e * exp(k_e); //
 % exp(Y1)             = exp(C) +    1     * (exp(K)-(1-deltak)*exp(K(-1))) + deltakm * exp(K_m(-1)); //   47
 exp(Y1)             = exp(C) +    1     * (exp(K)-(1-deltak)*exp(K(-1))) ; //   47
+exp(Y)              = gamma_e * exp(y_e); //
 //exp(Y)            = exp(C) + exp(q_k) * (exp(K)-(1-deltak)*exp(K(-1))) + deltakm * exp(K_m(-1))
 //                      + (eksi_1*(exp(u)-1) + eksi_2/2*((exp(u)-1)^2))
 //                      + kappa_p/2  * (  exp(pie) - ( exp(pie(-1)) ^ ind_p * piss ^ (1-ind_p) ))^2 * exp(Y)
