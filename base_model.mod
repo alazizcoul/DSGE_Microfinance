@@ -104,7 +104,7 @@ parameters
             rho_mk_d rho_mk_be rho_mk_bh rho_ee_qk rho_eps_l rho_eps_K_m    // SHOCKS
             rho_vi vi_ss chi_nu_zeta 
             zeta_bar zeta_e_ss zeta_i_ss rho_zeta_e rho_zeta_i 
-            chi_zeta_y chi_nu_y nu_bar  omega_m Z_i  Z_p
+            chi_zeta_y chi_nu_y vi_bar  omega_m Z_i  Z_p
             ;
              
 % *********************			
@@ -126,7 +126,7 @@ mk_d_ss      = eps_d   / (eps_d  - 1) ;                                    % ste
 mk_bh_ss     = eps_bh  / (eps_bh - 1) ;                                    % steady state markup on loans to I
 mk_be_ss     = eps_be  / (eps_be - 1) ;                                    % steady state markup on loans to E
 eps_y_ss     = 4.5; %6;                                                          % 
-eps_l_ss     = 3.5; %4;                                                          % 
+eps_l_ss     = 4 ; %3.5; %4;                                                          % 
 gamma_p      = 1;                                                          % shares of patient households
 gamma_i      = 1; //1/3;                                                   % shares of impatient households
 ni           = 0.4;                                                        % wage share of patient households
@@ -137,28 +137,39 @@ piss         = 1;                                                          % ste
 
 zeta_e_ss    = 0.07 ;
 zeta_i_ss    = 0.07 ;
-
-r_ib_ss      = (1/beta_p - 1) * (eps_d-1)/eps_d ;                       % steady state gross nominal interest rate 
+r_ib_ss      = (1/beta_p - 1) /mk_d_ss ;                       % steady state gross nominal interest rate 
 r_be_ss      = (r_ib_ss + zeta_e_ss)*eps_be/((eps_be-1)*(1 - zeta_e_ss)) ;								   % steady state interest rate on loans to E
 r_bh_ss      = (r_ib_ss + zeta_i_ss)*eps_bh/((eps_bh-1)*(1 - zeta_i_ss)) ;								   % steady state interest rate on loans to H
 
+rho_ib      =	0.513821 ;   
+phi_pie     =   2;
+phi_y       =	-0.16086462 ; 
+
+% POLITIQUE MACRO PRUDENTIELLE
+% =============Paremètres d'évolution du risque de crédit(RC)=========
+rho_zeta_e    = 0.838502 ;   % persistence du RC
+rho_zeta_i    = 0.838502 ;   % persistence du RC
+
+chi_zeta_y  = -0.087765793; % effet de la croissance économique sur le RC
 
 % =============Règle d'évolution de la norme de capitalisation========
-chi_nu_zeta = 0 ;          % Sensibilité de l'Autorité Macroprudentielle par rapport au risque de crédit
 chi_nu_y    = 0 ;  %0.002574401 ; %limite = 0.2; %est 0.002574401; % Sensibilité de l'Autorité Macroprudentielle par rapport niveau des prêts/PIB
-rho_vi      = 0 ;  %0.96264;      % persistence de la norme de solvabilité (ici 0, pas de dynamisme dans la norme)
+rho_vi      = 0.96264 ;  %0;      % persistence de la norme de solvabilité (ici 0, pas de dynamisme dans la norme)
 zeta_bar    = 0.03; %-0.07;     % Niveau cible du risque de crédit pour l'AM
-nu_bar      = 0.15 ;         % Niveau cible de la norme de cap
+vi_bar      = 0.15 ;         % Niveau cible de la norme de cap
 
-vi_ss        = nu_bar + chi_nu_zeta*( 0.5 * zeta_e_ss + 0.5 zeta_i_ss - zeta_bar) ;         %      Norme  de capitalisation  à l'état stationnaire
+chi_nu_zeta = 0 ;          % Sensibilité de l'Autorité Macroprudentielle par rapport au risque de crédit
+
+
+vi_ss        = vi_bar + chi_nu_zeta*( 0.5 * zeta_e_ss + 0.5 * zeta_i_ss - zeta_bar) ;         %      Norme  de capitalisation  à l'état stationnaire
 %=========================================================================================================================================================================================================
 
 
 // Sous hypothèse zeta_e_ss = zeta_i_ss et eps_be = eps_bh
 // Or on a: deltakm  /omega_m    = (1-zeta_i_ss)*(1 + r_bh_ss) b_i /K_m + (1-zeta_e_ss)*(1 + r_be_ss) b_e /K_m - r_d * D/K_m
 %=========================================================================================================================================================================================================
-omega_m      = 1 ;
-deltakm    = omega_m * ( (1-zeta_i_ss)*(1 + r_bh_ss)/vi_ss - 1/beta_p *(1 - vi_ss)/vi_ss )
+omega_m      = 0.6 ;
+deltakm    = omega_m * ( (1-zeta_i_ss)*(1 + r_bh_ss)/vi_ss - 1/beta_p *(1 - vi_ss)/vi_ss ) ;
 
 %=========================================================================================================================================================================================================
 r_k_ss       = 1/beta_e -(1-deltak)-m_e_ss*(1-deltak)/beta_e*(1/(1+r_be_ss)-beta_e * (1-zeta_e_ss));                       % steady state rental rate of capital
@@ -166,9 +177,49 @@ eksi_1       = r_k_ss;
 eksi_2       = 0.1*r_k_ss; 
 %=========================================================================================================================================================================================================
 
-Z_i = 1 + ( 1 - (1 - zeta_i_ss) * (1 + r_bh_ss) ) * m_i /(1 + r_bh_ss) ;
-Z_p = 1 + 1/ni * ( ( 1/beta_p - 1 ) * (1 - vi_ss) + ( 1/omega_m - 1 ) * vi_ss * deltakm )*( m_e_ss *(1-deltak)* alpha/( (1 + r_be_ss) * r_k * (1 - alpha)) + m_i_ss * (1 - ni)/(1 + r_bh_ss)) ;
+Z_i = 1 + ( 1 - (1 - zeta_i_ss) * (1 + r_bh_ss) ) * m_i_ss /(1 + r_bh_ss) ;
+Z_p = 1 + 1/ni * ( ( 1/beta_p - 1 ) * (1 - vi_ss) + ( 1/omega_m - 1 ) * vi_ss * deltakm )*( m_e_ss *(1-deltak)* alpha/( (1 + r_be_ss) * r_k_ss * (1 - alpha)) + m_i_ss * (1 - ni)/(1 + r_bh_ss)) ;
 %=========================================================================================================================================================================================================
+
+ind_d        = 0;                   % indexation deposit rates
+ind_be       = 0;                   % indexation rates on loans to firms
+ind_bh       = 0;                   % indexation rates on loans to households
+% *****************************************************************
+% LOADING MEDIAN OF POSTERIOR: USES EXTRACT_MEDIAN_FROM_POSTERIOR.m (dummy way)
+% *****************************************************************
+load median_values.txt;
+coeffs = median_values;
+
+rho_ee_z	=	coeffs(1);  % 0.385953438168178	;
+rho_A_e     =	coeffs(2);  % 0.93816527333294	;
+rho_me      =	coeffs(4);  % 0.90129485520182	;
+rho_mi      =	coeffs(5);  % 0.922378382753078	;
+rho_mk_d	=	coeffs(6);  % 0.892731352899547	;
+rho_mk_bh	=	coeffs(7);  % 0.851229673864555	;
+rho_mk_be	=	coeffs(8);  % 0.873901213475799	;
+rho_ee_qk	=	coeffs(9);  % 0.571692383714171	;
+rho_eps_y	=	coeffs(10); % 0.294182239567384	;
+rho_eps_l	=	coeffs(11); % 0.596186440884132	;
+rho_eps_K_m	=	coeffs(12); % 0.813022758608552	;
+kappa_p     =	coeffs(13); % 33.7705265016395	;
+kappa_w     =	coeffs(14); % 107.352040072465	;
+kappa_i     =	coeffs(15); % 10.0305562248008	;
+kappa_d     =	coeffs(16); % 2.77537377104213	;
+kappa_be	=	coeffs(17); % 7.98005959044637	;
+kappa_bh	=	coeffs(18); % 9.04426718749482	;
+kappa_km	=	coeffs(19); % 8.91481958034669	;
+%===phi_pie     =   2;  % coeffs(20); % 2.00384780180824  ;
+%===rho_ib      =	0.508944;   % 0.750481873084311	;
+%===phi_y       =	-0.157796667; % 0.303247771697294	;
+ind_p       =	coeffs(23); % 0.158112794106546	;
+ind_w       =	coeffs(24); % 0.300197804017489	;
+a_i	        =	coeffs(25); % 0.867003766306404	;
+a_e         =   coeffs(25) ;% 0.0     ;   % degree of habit formation: entrepreneurs
+a_p         =   coeffs(25); %0.0     ;   % degree of habit formation: patient households
+
+//%------------------------------------------------------------
+//% Model equations
+//%------------------------------------------------------------
 
 model;
 
@@ -233,7 +284,7 @@ exp(K) = (1-deltak) * exp(K(-1)) + ( 1 - kappa_i/2 * (exp(I)*exp(ee_qk)/exp(I(-1
 
 ////************  4) ENTREPRENEURS *********************************************************
 
-(1-a_e)*(exp(c_e) - a_i*exp(c_e(-1)))^(-1) = exp(lam_e);         // CON rescaling  (16) FOC consumption
+(1-a_e)*(exp(c_e) - a_e*exp(c_e(-1)))^(-1) = exp(lam_e);         // CON rescaling  (16) FOC consumption
 //        (exp(c_e) - a_e*exp(c_e(-1)))^(-1) = exp(lam_e);         // SENZA rescaling
 
 exp(s_e)  * exp(m_e) * exp(q_k(+1)) * exp(pie(+1)) * (1-deltak) 
@@ -372,7 +423,7 @@ end;
 
 
 
-steady_state_model ;
+steady_state_model ; 
 ee_z  =  log(1);
 A_e = log(1);
 ee_qk  =  log(1);
@@ -384,7 +435,7 @@ u = log(1) ;
 q_k = log(1);
 
 mk_d   = log(mk_d_ss);
-mk_be  =  log(mk_be_ss);
+mk_be  = log(mk_be_ss);
 mk_bh  = log (mk_bh_ss);
 m_i    = log (m_i_ss);
 m_e    = log( m_e_ss);
@@ -400,32 +451,30 @@ r_bh = log(r_bh_ss) ;
 r_be = log(r_be_ss) ;
 
 x   = log( exp(eps_y)/(exp(eps_y)-1)) ;
-r_d  = log ( exp(mk_d) * exp(r_ib))  %  ;
-R_b  = r_ib;
+r_d  = log ( exp(mk_d) * exp(r_ib)) ;
+R_b  = r_ib ;
 l_i = log (( (exp(eps_l) - 1)/(exp(eps_l) * Z_i))^(1 / (1 + phi))) ;
 l_id = l_i ;
 l_p = log( ( (exp(eps_l) - 1)/(exp(eps_l) * Z_p))^(1 / (1 + phi)) );
 l_pd = l_p ;
 
-y_e = log ( ( ( A_e * (alpha/(eps(x)*exp(r_k)))^alpha)^(1/(1-alpha)) ) * (exp(l_p)^ni * exp(l_i)^(1-ni)) ) ;
+y_e = log ( ( ( exp(A_e) * (alpha/(exp(x)*exp(r_k)))^alpha)^(1/(1-alpha)) ) * (exp(l_p)^ni * exp(l_i)^(1-ni)) ) ;
 w_i = log ((1-ni)*(1-alpha)*exp(y_e)/(exp(x)*exp(l_i)) );
 w_p = log (ni*(1-alpha)*exp(y_e)/(exp(x)*exp(l_p)) );
 
 k_e = log ( alpha * exp(y_e)/(exp(x) * exp(r_k)) ) ;
 K = k_e ;
-I = log(deltak* exp(K ));
+I = log(deltak * exp(K));
 
 b_i =log ( exp(m_i) * exp(w_i)* exp(l_i) /(1 + exp(r_bh)) ) ; 
 b_e = log (exp(m_e) * (1 - deltak) * exp(k_e)/(1 + exp(r_be))) ;
-b = log (exp(b_i) + exp(b_e)) ; 
-B = b ;
-d = log ( (1 - exp(vi)) *exp(B) ) ;
+B = log (exp(b_i) + exp(b_e)) ;
+d_p = log ( (1 - exp(vi)) *exp(B) ) ;
 D = d_p ;
 K_m = log( exp(vi) * exp(B) );
 J_m = log ( deltakm * exp(K_m)/omega_m );
-t_p = log (exp(J_R) + (1 - omega_m) * exp(J_m)) ;
 J_R = log ((1 - 1/exp(x))* exp(y_e)) ;
-
+t_p = log (exp(J_R) + (1 - omega_m) * exp(J_m)) ;
 
 c_p = log (exp(w_p) * exp(l_p) + exp(r_d) * exp(d_p)) ;
 c_i = log (exp(w_i) * exp(l_i) + ( 1 - (1 - exp(zeta_i)) * (1 + exp(r_bh)) ) * exp(b_i)) ;
@@ -449,24 +498,24 @@ BH    = b_h ;
 j_m   = J_m;
 PIW  = log(1) ;
 Y1     = y_e ; // log (exp(C) + exp(I));
-rr_e   = log (exp(lam_e) - beta_e*exp(lam_e)*(1+exp(r_be));
+rr_e   = log ( exp(lam_e) - beta_e*exp(lam_e)*(1+exp(r_be)));
 RatioCap  = log (exp(K_m)/exp(B));
 bm      = log (exp(b_h)/( exp(b_h)+exp(b_e)) * exp(r_bh) + exp(b_e)/( exp(b_h)+exp(b_e)) * exp(r_be) - exp(r_d));
 spr_b   = log( 0.5*exp(r_bh) + 0.5*exp(r_be) - exp(r_d)); 
 
-interestPol   = log( 400*exp(r_ib)); 
-interestH = log ( 400*exp(r_bh));
-interestF = log (400*exp(r_be));                                         
-inflation  = log (exp(pie)*100 );    
-loansH = log (exp(BH)*100);
-loansF = log (exp(BE)*100);
-output     = log (exp(Y1)*100); 
-consumption = log (exp(C)*100);
-investment = log (exp(I)*100);   
-deposits = log (exp(D)*100);
-interestDep = log ( 400*exp(r_d));
-IMFcapital = log ( 100*exp(K_m));                 
-ROA        = log (exp(J_m)/exp(B)) ;         
+interestPol   = 400*exp(r_ib); 
+interestH = 400*exp(r_bh);
+interestF = 400*exp(r_be);                                         
+inflation  = pie*100;    
+loansH = BH*100;
+loansF = BE*100;
+output     = Y1*100; 
+consumption = C*100;
+investment = I*100;   
+deposits = D*100;
+interestDep = 400*(exp(r_d));
+IMFcapital = 100*K_m;                 
+ROA        = exp(J_m)/exp(B) ;             
 //**************************************************************************
 
 end;
@@ -495,8 +544,6 @@ var e_zeta_e      = 0.050^2;     // Choc risque de crédit chez les entrepreneur
 var e_zeta_i      = 0.050^2;     // Choc risque de crédit chez les ménages
 
 end;
-
-
 
 
 
