@@ -8,7 +8,7 @@
 // Version: 02 01 2026
 // BBS has all items dated (t) - Microfinance capital in real terms is defined as: K_m(t)/p(t)
 // Banking profits are defined in the model code at time (t) - All equations in exp form
-// This is the full version (monop. competitive banking sector & Microfinance capital à la Gerali with sticky rates)  
+// This is the full version (monop. competitive Microfinance sector & Microfinance capital à la Gerali with sticky rates)  
 
 
 var 
