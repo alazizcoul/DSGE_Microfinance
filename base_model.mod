@@ -117,8 +117,8 @@ beta_i       = beta_e;                                                    % disc
 phi          = 1.5;                                                       % inverse Frisch elasticity of labor supply
 m_i_ss       = 0.3  ;                                                     % loan-to-value ratio impatient households
 m_e_ss       = 0.3 ;                                                      % loan-to-value ratio entrepreneurs
-alpha        = 0.30 ;                                                      % capital share in the production function
-eps_d        = -1.715361814 ; % (environ ...% de réduction)                     % elast. of subst. of deposits 
+alpha        = 0.30 ;                                                     % capital share in the production function
+eps_d        = -1.715361814 ; % (environ ...% de réduction)               % elast. of subst. of deposits 
 eps_bh       = 3.675 ;%  
 eps_be       = 3.675 ;%   
   
