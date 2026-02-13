@@ -78,12 +78,12 @@ bm        // 66 IMFs intermediation margins
 spr_b     // 67 average bank spread (active-passive) (67-3 = 64)
 zeta_e
 zeta_i
-vi
+vi ;
 
 %//**************************************************************************
 // Replication Variables                                                 
-  ROA interestPol interestH interestF inflation
-  loansH loansF output consumption investment deposits interestDep IMFcapital;
+//  ROA interestPol interestH interestF inflation
+//  loansH loansF output consumption investment deposits interestDep IMFcapital;
 %//**************************************************************************
 
 varexo  e_zeta_e e_zeta_i  e_A_e e_eps_K_m e_l e_me e_mi e_mk_be e_mk_bh e_mk_d e_r_ib e_qk e_y e_z;   //14  
@@ -118,15 +118,15 @@ phi          = 1.5;                                                       % inve
 m_i_ss       = 0.3  ;                                                     % loan-to-value ratio impatient households
 m_e_ss       = 0.3 ;                                                      % loan-to-value ratio entrepreneurs
 alpha        = 0.30 ;                                                      % capital share in the production function
-eps_d        = -1.715; % (environ ...% de réduction)                     % elast. of subst. of deposits 
+eps_d        = -1.715361814 ; % (environ ...% de réduction)                     % elast. of subst. of deposits 
 eps_bh       = 3.675 ;%  
 eps_be       = 3.675 ;%   
   
 mk_d_ss      = eps_d   / (eps_d  - 1) ;                                   % steady state markdown on D (ok if eps_d<0; if eps_d>0 it should be eps_d/(eps_d+1) )
 mk_bh_ss     = eps_bh  / (eps_bh - 1) ;                                   % steady state markup on loans to I
 mk_be_ss     = eps_be  / (eps_be - 1) ;                                   % steady state markup on loans to E
-eps_y_ss     = 6; % (20% de marges)                                        % 
-eps_l_ss     = 21 ; %(5% de marges)                                            % 
+eps_y_ss     = 6; % (6  20% de marges)                                        % 
+eps_l_ss     = 10 ; %(21  5% de marges)                                            % 
 gamma_p      = 1;                                                          % shares of patient households
 gamma_i      = 1; //1/3;                                                   % shares of impatient households
 ni           = 0.4;                                                        % wage share of patient households
@@ -143,7 +143,7 @@ r_bh_ss      = (r_ib_ss + zeta_i_ss)*eps_bh/((eps_bh-1)*(1 - zeta_i_ss)) ;						
 
 %%%% EVOLUTION de r_ib%%%%%%%%%%
 rho_ib      =	0.513821 ;   
-phi_pie     =   0.002;
+phi_pie     =   1.6;
 phi_y       =	-0.16086462 ; 
 
 % POLITIQUE MACRO PRUDENTIELLE
@@ -155,9 +155,10 @@ chi_zeta_y  = -0.087765793; % effet de la croissance économique sur le RC
 
 % =============Règle d'évolution de la norme de capitalisation========
 chi_nu_y    = 0.002574401 ;  % ; %limite = 0.2; %est 0.002574401; % Sensibilité de l'Autorité Macroprudentielle par rapport niveau des prêts/PIB
-rho_vi      = 0.96264 ;     % persistence de la norme de solvabilité (ici 0, pas de dynamisme dans la norme)
+
+rho_vi      = 0.96264 ;     % 0.96264 persistence de la norme de solvabilité (ici 0, pas de dynamisme dans la norme)
 zeta_bar    = 0.03; % ;     % Niveau cible (stationnaire) du risque de crédit pour l'AM
-%vi_bar      = 0.15 ;         % Niveau cible de la norme de cap
+%vi_bar      = 0.15 ;       % Niveau cible de la norme de cap
 
 chi_nu_zeta = 1/3  ; %(augmentation du risque DE 3 points entraine une augmenttion de l'exigence de 1 point  % Sensibilité de l'Autorité Macroprudentielle par rapport au risque de crédit
 
@@ -234,7 +235,7 @@ model;
 
 //**************************************************************************
 // Definition of Replication Variables in Terms of Original Model Variables //*
-
+/*
 interestPol   = 400*exp(r_ib); 
 interestH     = 400*exp(r_bh);
 interestF     = 400*exp(r_be);                                         
@@ -248,7 +249,7 @@ deposits      = D*100;
 interestDep   = 400*(exp(r_d));
 IMFcapital    = 100*K_m;                 
 ROA           = exp(J_m)/exp(B) ;       
-
+*/
 //**************************************************************************
 
 // Model code:
@@ -268,7 +269,7 @@ exp(pie_wp) = exp(w_p) / exp(w_p(-1)) * exp(pie); // definition of wage inflatio
 exp(c_p)  + exp(d_p)  = exp(w_p) * exp(l_p)
    + (1+exp(r_d(-1)))*exp(d_p(-1))/exp(pie) + exp(t_p)  ;  //patient household budget constraint (5), exp(J_R)/gamma_p = t_p
 
-exp(t_p) = exp(J_R)/gamma_p +  (1-omega_m)* exp(J_m) ; // (6)
+exp(t_p) = exp(J_R)/gamma_p +  (1-omega_m)* exp(J_m(-1)) ; // (6)
 
 ////***********   2) IMPATIENT HHs ********************************************************7
 
@@ -304,7 +305,7 @@ exp(s_e)  * exp(m_e) * exp(q_k(+1)) * exp(pie(+1)) * (1-deltak)
 exp(w_p) =    ni  * (1-alpha) * exp(y_e) / ( exp(l_pd) * exp(x) ); // (16) FOC labor patient households
 exp(w_i) = (1-ni) * (1-alpha) * exp(y_e) / ( exp(l_id) * exp(x) ); // (17) FOC labor impatient households
 
-exp(lam_e) - exp(s_e)  * (1+exp(r_be)) = beta_e * exp(lam_e(+1)) * (1+exp(r_be))*(1-exp(zeta_e(+1))) / exp(pie(+1));  // (20) FOC credit demand
+exp(lam_e) - exp(s_e)  * (1+exp(r_be)) = beta_e * exp(lam_e(+1)) * (1+exp(r_be(+1)))*(1-exp(zeta_e(+1))) / exp(pie(+1));  // (20) FOC credit demand
 exp(r_k)  = eksi_1 + eksi_2 * (exp(u)-1); // (18) FOC utilization rate
 
 exp(c_e) + (1-exp(zeta_e))*((1+exp(r_be(-1))) * exp(b_ee(-1)) / exp(pie) ) +  (exp(w_p)*exp(l_pd) + exp(w_i)*exp(l_id)) + exp(q_k) * exp(k_e) 
@@ -315,7 +316,7 @@ exp(y_e) = exp(A_e) * (exp(u)*exp(k_e(-1)))^(alpha) * ( exp(l_pd)^ni * exp(l_id)
 
 (1+exp(r_be)) * exp(b_ee) = exp(m_e) * exp(q_k(+1))  *exp(pie(+1)) * exp(k_e) * (1-deltak); // borrowing constraint entrepreneurs (21)
 
-exp(r_k) = alpha * exp(A_e) * exp(u)^(alpha-1) * exp(k_e(-1))^(alpha-1) * ( exp(l_pd)^ni * exp(l_id)^(1-ni) ) ^ (1-alpha) /exp(x);  // definition (22)
+exp(r_k) = alpha * exp(A_e) * exp(u)^(alpha) * exp(k_e(-1))^(alpha-1) * ( exp(l_pd)^ni * exp(l_id)^(1-ni) ) ^ (1-alpha) /exp(x);  // definition (22)
 
 ////*************  5)IMFs ****************************************************************
 
@@ -336,16 +337,16 @@ exp(b_h) + exp(b_e)  =  exp(d_b) + exp(K_m) ; //(28)
   + beta_p * ( exp(lam_p(+1))/exp(lam_p) ) * kappa_d  * ( exp(r_d(+1))/exp(r_d) - ( exp(r_d)/exp(r_d(-1)))^ind_d )   * ( (exp(r_d(+1))/exp(r_d))^2 )   * (exp(d_b(+1))/exp(d_b)) = 0;//(29) 
   
 // (29) FOC loan branch, entrepreneurs:
-(+ 1 - exp(mk_be)/(exp(mk_be)-1) )*(1 - exp(zeta_e(+1)))  +  exp(mk_be)/(exp(mk_be)-1)  * (exp(R_b) + exp(zeta_e(+1)))/exp(r_be) - kappa_be * (exp(r_be)/exp(r_be(-1)) - ( exp(r_be(-1)) / exp(r_be(-2)) )^ind_be ) * exp(r_be)/exp(r_be(-1)) 
+(+ 1 - exp(mk_be)/(exp(mk_be)-1) )*(1 - exp(zeta_e))  +  exp(mk_be)/(exp(mk_be)-1)  * (exp(R_b) + exp(zeta_e))/exp(r_be) - kappa_be * (exp(r_be)/exp(r_be(-1)) - ( exp(r_be(-1)) / exp(r_be(-2)) )^ind_be ) * exp(r_be)/exp(r_be(-1)) 
   + beta_p * ( exp(lam_p(+1))/exp(lam_p) ) * kappa_be * ( exp(r_be(+1))/exp(r_be) - ( exp(r_be)/exp(r_be(-1)))^ind_be ) * ( (exp(r_be(+1))/exp(r_be))^2 ) * (exp(b_e(+1))/exp(b_e)) = 0;//   (30)
   
 // (30) FOC loan brach, impatient households
-(+ 1 - exp(mk_bh)/(exp(mk_bh)-1) )*(1 - exp(zeta_i(+1)))  +  exp(mk_bh)/(exp(mk_bh)-1)  * (exp(R_b) + exp(zeta_i(+1)))/exp(r_bh) - kappa_bh * (exp(r_bh)/exp(r_bh(-1)) - ( exp(r_bh(-1)) / exp(r_bh(-2)))^ind_bh ) * exp(r_bh)/exp(r_bh(-1)) 
+(+ 1 - exp(mk_bh)/(exp(mk_bh)-1) )*(1 - exp(zeta_i))  +  exp(mk_bh)/(exp(mk_bh)-1)  * (exp(R_b) + exp(zeta_i))/exp(r_bh) - kappa_bh * (exp(r_bh)/exp(r_bh(-1)) - ( exp(r_bh(-1)) / exp(r_bh(-2)))^ind_bh ) * exp(r_bh)/exp(r_bh(-1)) 
   + beta_p * ( exp(lam_p(+1))/exp(lam_p) ) * kappa_bh * ( exp(r_bh(+1))/exp(r_bh) - ( exp(r_bh)/exp(r_bh(-1)))^ind_bh ) * ( (exp(r_bh(+1))/exp(r_bh))^2 ) * (exp(b_h(+1))/exp(b_h)) = 0;// (31)
 
 // (31) overall microfinance profits:
-exp(j_m) = +((1 -exp(zeta_i(+1)))* exp(r_bh) - exp(zeta_i(+1)))*  exp(b_h)
-           +((1 -exp(zeta_e(+1)))* exp(r_be) -exp(zeta_e(+1))) *  exp(b_e) 
+exp(j_m) = +((1 -exp(zeta_i))* exp(r_bh) - exp(zeta_i))*  exp(b_h)
+           +((1 -exp(zeta_e))* exp(r_be) -exp(zeta_e)) *  exp(b_e) 
            - exp(r_d)   *  exp(d_b)           
            - kappa_d/2  * ( (exp(r_d)/exp(r_d(-1))-1)^2)   * exp(r_d) *exp(d_b) 
            - kappa_be/2 * ( (exp(r_be)/exp(r_be(-1))-1)^2) * exp(r_be)*exp(b_e) 
@@ -355,7 +356,7 @@ exp(j_m) = +((1 -exp(zeta_i(+1)))* exp(r_bh) - exp(zeta_i(+1)))*  exp(b_h)
  
 %% Calcul de vi selon les normes dynamique ou statique
      % Norme Statique
-   % exp(vi) = vi_ss;  % Situation statique, vi est fixé à sa valeur stationnaire
+     %exp(vi) = vi_ss;  % Situation statique, vi est fixé à sa valeur stationnaire
     
      % Norme Dynamique
      exp(vi) = exp(vi(-1)) * rho_vi + vi_bar * (1 - rho_vi) +  (0.5 * exp(zeta_e) + 0.5 * exp(zeta_i) - zeta_bar ) * (1 - rho_vi) * chi_nu_zeta +  (exp(B) /exp(Y)  -exp(steady_state(B))/ exp(steady_state(Y)) ) * (1 - rho_vi) * chi_nu_y;
@@ -413,8 +414,6 @@ exp(eps_y)    = (1-rho_eps_y)  * eps_y_ss      + rho_eps_y  * exp(eps_y(-1))   +
 exp(eps_l)    = (1-rho_eps_l)  * eps_l_ss      + rho_eps_l  * exp(eps_l(-1))   + e_l;
 exp(eps_K_m)  = (1-rho_eps_K_m)*    1          + rho_eps_K_m* exp(eps_K_m(-1)) + e_eps_K_m;
 
-%exp(zeta_e) =   rho_zeta_e*  (exp(zeta_e(-1))) + (1-rho_zeta_e)*zeta_e_ss + (1-rho_zeta_e)*chi_zeta_y*(exp(Y)/exp(Y(-1))-1) + e_zeta_e; %
-%exp(zeta_i) =   rho_zeta_i*  (exp(zeta_i(-1))) + (1-rho_zeta_i)*zeta_i_ss + (1-rho_zeta_i)*chi_zeta_y*(exp(Y)/exp(Y(-1))-1) + e_zeta_i; %
 
 exp(zeta_e) =   rho_zeta_e*  (exp(zeta_e(-1))) + (1-rho_zeta_e)*zeta_e_ss  + e_zeta_e; 
 exp(zeta_i) =   rho_zeta_i*  (exp(zeta_i(-1))) + (1-rho_zeta_i)*zeta_i_ss  + e_zeta_i; 
@@ -515,6 +514,7 @@ RatioCap  = exp(K_m)/exp(B);
 bm      = log (exp(b_h)/( exp(b_h)+exp(b_e)) * exp(r_bh) + exp(b_e)/( exp(b_h)+exp(b_e)) * exp(r_be) - exp(r_d));
 spr_b   = log( 0.5*exp(r_bh) + 0.5*exp(r_be) - exp(r_d)); 
 
+/*
 interestPol   = 400*exp(r_ib); 
 interestH     = 400*exp(r_bh);
 interestF     = 400*exp(r_be);                                         
@@ -528,19 +528,26 @@ deposits      = D*100;
 interestDep   = 400*(exp(r_d));
 IMFcapital    = 100*K_m;                 
 ROA           = exp(J_m)/exp(B) ;       
-
+*/
 //**************************************************************************
 
 end;
 
 
 // ========================================
-// 1️⃣ Calcul de l'état stationnaire
+// 1. Calcul de l'état stationnaire
 // ========================================
+
+model_diagnostics ;
 steady;
+check;
+
+% Afficher l'ordre des variables
+% M_.endo_names
+
 
 // ========================================
-// 2️⃣ Définition des chocs exogènes (variances)
+// 2. Définition des chocs exogènes (variances)
 // ========================================
 shocks;
     var e_z       = 0.0144^2;  
@@ -559,32 +566,31 @@ shocks;
     var e_zeta_i  = 0.050^2;   
 end;
 /*
-// ========================================
-// 3️⃣ Définition de la matrice des chocs stochastiques
-// ========================================
-irf_horizon = 20;
-shock_matrix = zeros(irf_horizon, M_.exo_nbr);
+%% Configuration de la simulation 
+%% Définition des chocs
+shock_matrix = zeros(options_.irf, M_.exo_nbr);
 
-shock_idx = find(strcmp('e_zeta_e', M_.exo_names));
-shock_matrix(1, shock_idx) = 0.05;
+%choc négative sur la productivité des entreprises
+shock_matrix(1, strmatch('e_A_e', M_.exo_names, 'exact')) = -0.01;
 
-// ========================================
-// 4️⃣ Conditions initiales = état stationnaire
-// ========================================
-initial_condition_states = oo_.steady_state;  % <-- correction ici
+% Choc fonds propres (en réponse à une augmentation de la production)
+%shock_matrix(2, strmatch('e_eps_K_m', M_.exo_names, 'exact')) =  -log(1 + (1-rho_zeta)*chi_zeta_y); % (1-rho_zeta)*chi_zeta_y = 0.985826
 
-// ========================================
-// 5️⃣ Variables à tracer
-// ========================================
-vars_to_plot = { ...
-    'zeta', 'vi', 'RatioCap', 'K_m', 'R_b', 'r_bh', ...
-    'B', 'D', 'ROA', 'C', 'I', 'Y1'};
+% Conditions initiales
+initial_condition_states = repmat(oo_.dr.ys, 1, M_.maximum_lag);
 
-// ========================================
-// 6️⃣ Appel de la fonction run_IRF
-// ========================================
-save_path = pwd;
-IRF_all = run_IRF(M_, oo_, options_, initial_condition_states, shock_matrix, save_path);
+% Chemin de sauvegarde
+save_path = 'D:/personal/DGTCP-Stage/Memoire 1/selected articles/Seuil';
 
-disp('? Simulation IRF terminée ! Les résultats sont dans IRF_all.');
+% Exécution de la fonction multi-chocs
+IRF_all_sc1 = run_IRF(M_, oo_, options_, initial_condition_states, shock_matrix, save_path);
 */
+
+//stoch_simul(order=1, irf=20) interestPol interestH interestF inflation loansH loansF output consumption investment deposits interestDep;
+//stoch_simul(order=1, irf=20, irf_shocks=(e_j) );
+//stoch_simul(order=1, irf=10) interestPol interestH interestF inflation loansH loansF output ;
+
+
+%stoch_simul(hp_filter=6.25, order=1, irf=20) r_bh zeta_e zeta_i ;
+
+
