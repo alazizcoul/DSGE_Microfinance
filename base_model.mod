@@ -11,6 +11,11 @@
 // This is the full version (monop. competitive banking sector & Microfinance capital à la Gerali with sticky rates)  
 
 
+%Scénario par défaut : static
+@#if !defined(norm)
+    @#define norm = "static"
+@#endif
+
 var 
 c_p       // 1  PATIENT   HHs
 d_p       // 3  PATIENT   HHs
@@ -78,12 +83,12 @@ bm        // 66 IMFs intermediation margins
 spr_b     // 67 average bank spread (active-passive) (67-3 = 64)
 zeta_e
 zeta_i
-vi ;
+vi 
 
 %//**************************************************************************
 // Replication Variables                                                 
-//  ROA interestPol interestH interestF inflation
-//  loansH loansF output consumption investment deposits interestDep IMFcapital;
+  ROA interestPol interestH interestF inflation
+  loansH loansF output consumption investment deposits interestDep IMFcapital;
 %//**************************************************************************
 
 varexo  e_zeta_e e_zeta_i  e_A_e e_eps_K_m e_l e_me e_mi e_mk_be e_mk_bh e_mk_d e_r_ib e_qk e_y e_z;   //14  
@@ -104,23 +109,23 @@ parameters
             rho_mk_d rho_mk_be rho_mk_bh rho_ee_qk rho_eps_l rho_eps_K_m    // SHOCKS
             rho_vi vi_ss chi_nu_zeta 
             zeta_bar zeta_e_ss zeta_i_ss rho_zeta_e rho_zeta_i 
-            chi_zeta_y chi_nu_y vi_bar  omega_m Z_i  Z_p
+            chi_nu_y vi_bar  omega_m Z_i  Z_p
             ;
              
 % *********************			
 % CALIBRATED PARAMETERS
 % *********************
 
-beta_p       = 0.988 ; % (pour un taux de dépot d'environ 4,7%)      % discount factor patient households
-beta_e       = 0.963 ;   %  beta_e légèrement inférieur 1/((1+r_be)*(1-zeta_e))      % discount factor impatient households     
+beta_p       = 0.99 ; % (pour un taux de dépot d'environ 4,7%)      % discount factor patient households
+beta_e       = 0.96 ;   %  beta_e légèrement inférieur 1/((1+r_be)*(1-zeta_e))      % discount factor impatient households     
 beta_i       = beta_e;                                                    % discount factor entrepreneurs
-phi          = 1.5;                                                       % inverse Frisch elasticity of labor supply
-m_i_ss       = 0.3  ;                                                     % loan-to-value ratio impatient households
-m_e_ss       = 0.3 ;                                                      % loan-to-value ratio entrepreneurs
-alpha        = 0.30 ;                                                     % capital share in the production function
-eps_d        = -1.715361814 ; % (environ ...% de réduction)               % elast. of subst. of deposits 
-eps_bh       = 3.675 ;%  
-eps_be       = 3.675 ;%   
+phi          = 1;                                                       % inverse Frisch elasticity of labor supply
+m_i_ss       = 0.4  ;                                                   % loan-to-value ratio impatient households
+m_e_ss       = 0.4 ;                                                    % loan-to-value ratio entrepreneurs
+alpha        = 0.30 ;                                                   % capital share in the production function
+eps_d        = -1.142857143 ; % (environ ...% de réduction)             % elast. of subst. of deposits 
+eps_bh       = 3.364451692 ;%  
+eps_be       = 3.364451692 ;%   
   
 mk_d_ss      = eps_d   / (eps_d  - 1) ;                                   % steady state markdown on D (ok if eps_d<0; if eps_d>0 it should be eps_d/(eps_d+1) )
 mk_bh_ss     = eps_bh  / (eps_bh - 1) ;                                   % steady state markup on loans to I
@@ -135,50 +140,51 @@ gamma_e      = 1; //1 - gamma_p - gamma_i;								   % shares of entrepreneurs
 deltak       = 0.035; %                                                    % depreciation rate for physical capital
 piss         = 1;                                                          % steady state gross inflation rate
 
-zeta_e_ss    = 0.03 ; %
-zeta_i_ss    = 0.03 ; % 
+zeta_e_ss    = 0.0175 ; % 0.07/4 (risque trimest)
+zeta_i_ss    = 0.0175 ; % 
 r_ib_ss      = (1/beta_p - 1) /mk_d_ss ;    %(taux de refinancement des imf) % steady state gross nominal interest rate 
 r_be_ss      = (r_ib_ss + zeta_e_ss)*eps_be/((eps_be-1)*(1 - zeta_e_ss)) ;								   % steady state interest rate on loans to E
 r_bh_ss      = (r_ib_ss + zeta_i_ss)*eps_bh/((eps_bh-1)*(1 - zeta_i_ss)) ;								   % steady state interest rate on loans to H
 
 %%%% EVOLUTION de r_ib%%%%%%%%%%
 rho_ib      =	0.513821 ;   
-phi_pie     =   1.6;
-phi_y       =	-0.16086462 ; 
+phi_pie     =   1.9;
+phi_y       =	-0.16 ; %-0.16086462
 
 % POLITIQUE MACRO PRUDENTIELLE
 % =============Paremètres d'évolution du risque de crédit(RC)=========
 rho_zeta_e    = 0.838502 ;   % persistence du RC
 rho_zeta_i    = 0.838502 ;   % persistence du RC
 
-chi_zeta_y  = -0.087765793; % effet de la croissance économique sur le RC
+% =============Règle d'évolution de la norm de capitalisation========
 
-% =============Règle d'évolution de la norme de capitalisation========
-chi_nu_y    = 0.002574401 ;  % ; %limite = 0.2; %est 0.002574401; % Sensibilité de l'Autorité Macroprudentielle par rapport niveau des prêts/PIB
+vi_ss       = 0.125 ;    % (Niveau stat de K/B)
+vi_bar      = vi_ss  ;    % Pour assurer vi_ss de niveau stat pour la norme de cap
+zeta_bar    = zeta_e_ss; % zeta_e_ss = zeta_i_ss;     % Niveau cible (stationnaire) du risque de crédit pour l'AM
+@#if norm == "static"
+    % Norme Statique
+    rho_vi      = 1 ; % (Norme totatlement persistente(0 : Etat stat persistent / 1: persistence de la norme....)   
+    chi_nu_zeta = 0 ; % l'Autorité Macroprudentielle est totalement insensible par rapport au risque de crédit
+    chi_nu_y    = 0 ; % l'Autorité Macroprudentielle est totalement insensible par rapport au niveau des prêts/PIB
+@#endif 
+@#if norm == "dynamic"
+    % Norme Dynamique
+    rho_vi      = 0.85 ;     % 0.96264 persistence de la norme de solvabilité
+    chi_nu_zeta = 1/3; % 1/3 (augmentation du risque DE 3 points entraine une augmenttion de l'exigence de 1 point  % Sensibilité de l'Autorité Macroprudentielle par rapport au risque de crédit
+    chi_nu_y    = 0.002574401 ;  % ; %limite = 0.2; %est 0.002574401; % Sensibilité de l'Autorité Macroprudentielle par rapport niveau des prêts/PIB
 
-rho_vi      = 0.96264 ;     % 0.96264 persistence de la norme de solvabilité (ici 0, pas de dynamisme dans la norme)
-zeta_bar    = 0.03; % ;     % Niveau cible (stationnaire) du risque de crédit pour l'AM
-%vi_bar      = 0.15 ;       % Niveau cible de la norme de cap
-
-chi_nu_zeta = 1/3  ; %(augmentation du risque DE 3 points entraine une augmenttion de l'exigence de 1 point  % Sensibilité de l'Autorité Macroprudentielle par rapport au risque de crédit
-
-vi_ss       = 0.125 ; % (Niveau stat de K/B)
-vi_bar = vi_ss - chi_nu_zeta*( 0.5 * zeta_e_ss + 0.5 * zeta_i_ss - zeta_bar) ;  % Pour assurer 12,5% de niveau stat pour la norme de cap
-%vi_ss       = vi_bar + chi_nu_zeta*( 0.5 * zeta_e_ss + 0.5 * zeta_i_ss - zeta_bar) ;         %      Norme  de capitalisation  à l'état stationnaire
-
+@#endif
 %=========================================================================================================================================================================================================
 
-
+%=========================================================================================================================================================================================================
 // Sous hypothèse zeta_e_ss = zeta_i_ss et eps_be = eps_bh
-// Or on a: deltakm  /omega_m    = (1-zeta_i_ss)*(1 + r_bh_ss) b_i /K_m + (1-zeta_e_ss)*(1 + r_be_ss) b_e /K_m - r_d * D/K_m
-%=========================================================================================================================================================================================================
 omega_m    = 0.90 ;
 deltakm    = omega_m * ( ( (1-zeta_i_ss)*r_bh_ss -zeta_i_ss  )/vi_ss - (1/beta_p - 1) *(1 - vi_ss)/vi_ss ) ;
 
 %=========================================================================================================================================================================================================
 r_k_ss       = 1/beta_e - (1-deltak)-(1/(1+r_be_ss)-beta_e * (1-zeta_e_ss))*m_e_ss*(1-deltak)/beta_e;                       % steady state rental rate of capital
 eksi_1       = r_k_ss;   
-eksi_2       = 0.1*r_k_ss; 
+eksi_2       = 0.2*r_k_ss; 
 %=========================================================================================================================================================================================================
 
 Z_i = 1 + ( 1 - (1 - zeta_i_ss) * (1 + r_bh_ss) ) * m_i_ss /(1 + r_bh_ss) ;
@@ -189,7 +195,6 @@ Z_p =  1 + 1/ni * ( ( 1/beta_p - 1 ) * (1 - vi_ss) + ( 1/omega_m - 1 ) * vi_ss *
 %Z_p = (eps_y_ss-1)/eps_y_ss * ( 1 + 1/ni * ( ( 1/beta_p - 1 ) * (1 - vi_ss) + ( 1/omega_m - 1 ) * vi_ss * deltakm )*( m_e_ss *(1-deltak)* alpha/( (1 + r_be_ss) * r_k_ss * (1 - alpha)) + m_i_ss * (1 - ni)/(1 + r_bh_ss)) 
 %      + (1/eps_y_ss) * ( 1/(ni * (1 - alpha) + ( 1 - (1 - zeta_i_ss) * (1 + r_bh_ss) ) * m_i_ss * (1 - ni) /((1 + r_bh_ss) * ni) + ( 1 - (1 - zeta_e_ss) * (1 + r_be_ss) ) * m_e_ss * (1 - deltak)*alpha /((1 + r_be_ss) * r_k_ss * ni * (1-alpha))  ))) ;
 %=========================================================================================================================================================================================================
-%BBB =  m_e_ss * (1 - deltak)*alpha /((1 + r_be_ss) * r_k_ss * ni * (1-alpha))
 
 ind_d        = 0;                   % indexation deposit rates
 ind_be       = 0;                   % indexation rates on loans to firms
@@ -197,35 +202,39 @@ ind_bh       = 0;                   % indexation rates on loans to households
 % *****************************************************************
 % LOADING MEDIAN OF POSTERIOR: USES EXTRACT_MEDIAN_FROM_POSTERIOR.m (dummy way)
 % *****************************************************************
-load median_values.txt;
-coeffs = median_values;
 
-rho_ee_z	=	coeffs(1);  % 0.385953438168178	;
-rho_A_e     =	coeffs(2);  % 0.93816527333294	;
-rho_me      =	coeffs(4);  % 0.90129485520182	;
-rho_mi      =	coeffs(5);  % 0.922378382753078	;
-rho_mk_d	=	coeffs(6);  % 0.892731352899547	;
-rho_mk_bh	=	coeffs(7);  % 0.851229673864555	;
-rho_mk_be	=	coeffs(8);  % 0.873901213475799	;
-rho_ee_qk	=	coeffs(9);  % 0.571692383714171	;
-rho_eps_y	=	coeffs(10); % 0.294182239567384	;
-rho_eps_l	=	coeffs(11); % 0.596186440884132	;
-rho_eps_K_m	=	coeffs(12); % 0.813022758608552	;
-kappa_p     =	coeffs(13); % 33.7705265016395	;
-kappa_w     =	coeffs(14); % 107.352040072465	;
-kappa_i     =	coeffs(15); % 10.0305562248008	;
-kappa_d     =	coeffs(16); % 2.77537377104213	;
-kappa_be	=	coeffs(17); % 7.98005959044637	;
-kappa_bh	=	coeffs(18); % 9.04426718749482	;
-kappa_km	=	coeffs(19); % 8.91481958034669	;
-%===phi_pie     =   2;  % coeffs(20); % 2.00384780180824  ;
-%===rho_ib      =	0.508944;   % 0.750481873084311	;
-%===phi_y       =	-0.157796667; % 0.303247771697294	;
-ind_p       =	coeffs(23); % 0.158112794106546	;
-ind_w       =	coeffs(24); % 0.300197804017489	;
-a_i	        =	coeffs(25); % 0.867003766306404	;
-a_e         =   coeffs(25) ;% 0.0     ;   % degree of habit formation: entrepreneurs
-a_p         =   coeffs(25); %0.0     ;   % degree of habit formation: patient households
+% === Persistance des chocs (Processus AR1) ===
+rho_A_e     = 0.8500; % Productivité : Moins persistant qu'en Europe (chocs agricoles)
+rho_ee_z    = 0.4500; % Préférence conso : Faible lissage en CI
+rho_me      = 0.7500; % Choc LTV Entrepreneurs (SFD plus prudents)
+rho_mi      = 0.7500; % Choc LTV Ménages
+rho_mk_be   = 0.8000; % Persistance marge crédit
+rho_eps_K_m = 0.9000; % CRUCIAL : Un choc de PAR90 sur le capital met du temps à se résorber
+rho_eps_y   = 0.3000; % Choc offre PIB
+rho_eps_l   = 0.6000; % Choc offre travail
+
+% === Rigidités Nominales et Réelles (Rotemberg) ===
+kappa_p     = 18.0000; % Prix : Plus flexibles en CI (Zone CFA)
+kappa_w     = 35.0000; % Salaires : Moins rigides que le standard CEE
+kappa_d     = 4.5000;  % Rigidité taux dépôts (Concurrence Mobile Money)
+kappa_be    = 15.0000; % Taux Crédit SFD : Très rigides (contrats fixes, usure)
+kappa_bh    = 15.0000; % Taux Crédit Ménages SFD : Très rigides
+kappa_km    = 25.0000; % CRUCIAL : Très coûteux pour un SFD de se recapitaliser
+
+% === Comportement des Agents ===
+a_i         = 0.5500; % Habitudes de consommation : Faibles pour les clients SFD
+a_e         = 0.5500; % (Les agents n'ont pas assez d'épargne pour lisser)
+a_p         = 0.5500; 
+ind_p       = 0.1500; % Indexation prix : Faible en zone CFA
+ind_w       = 0.2000; % Indexation salaires : Faible
+
+% === Autres (Ajustement du capital) ===
+kappa_i     = 4.5000; % Coût d'ajustement de l'investissement (moyen)
+% ==================
+rho_mk_d    = 0.7000; % Persistance du markup sur les dépôts
+rho_mk_bh   = 0.8500; % Persistance du markup sur les prêts aux ménages
+rho_ee_qk   = 0.5500; % Persistance du choc sur le prix de l'actif (collatéral)
+
 
 //%------------------------------------------------------------
 //% Model equations
@@ -235,21 +244,27 @@ model;
 
 //**************************************************************************
 // Definition of Replication Variables in Terms of Original Model Variables //*
-/*
-interestPol   = 400*exp(r_ib); 
-interestH     = 400*exp(r_bh);
-interestF     = 400*exp(r_be);                                         
-inflation     = pie*100;    
-loansH        = BH*100;
-loansF        = BE*100;
-output        = Y1*100; 
-consumption   = C*100;
-investment    = I*100;   
-deposits      = D*100;
-interestDep   = 400*(exp(r_d));
-IMFcapital    = 100*K_m;                 
-ROA           = exp(J_m)/exp(B) ;       
-*/
+// INTEREST RATES (Annualized Percentage)
+interestPol   = 400 * exp(r_ib);  
+interestH     = 400 * exp(r_bh);
+interestF     = 400 * exp(r_be);                                           
+interestDep   = 400 * exp(r_d);
+
+// MACRO AGGREGATES (Levels scaled by 100)
+output        = exp(Y1) * 100; // Use Y (Total Output) not just sector Y1
+consumption   = exp(C) * 100;
+investment    = exp(I) * 100;   
+deposits      = exp(D) * 100;
+loansH        = exp(BH) * 100;
+loansF        = exp(BE) * 100;
+
+// BANKING METRICS
+IMFcapital    = exp(K_m) * 100;                  
+ROA           = exp(J_m) / exp(B); 
+
+// RATES (Already in net terms, just annualize)
+inflation     = pie * 400;
+
 //**************************************************************************
 
 // Model code:
@@ -353,14 +368,20 @@ exp(j_m) = +((1 -exp(zeta_i))* exp(r_bh) - exp(zeta_i))*  exp(b_h)
            - kappa_bh/2 * ( (exp(r_bh)/exp(r_bh(-1))-1)^2) * exp(r_bh)*exp(b_h)
            - kappa_km/2 * ( (exp(K_m) / exp(B)  - exp(vi)) ^2) * exp(K_m); //  32
 %%========================================================================================================================================================================================================================
- 
+
 %% Calcul de vi selon les normes dynamique ou statique
-     % Norme Statique
-     %exp(vi) = vi_ss;  % Situation statique, vi est fixé à sa valeur stationnaire
-    
-     % Norme Dynamique
-     exp(vi) = exp(vi(-1)) * rho_vi + vi_bar * (1 - rho_vi) +  (0.5 * exp(zeta_e) + 0.5 * exp(zeta_i) - zeta_bar ) * (1 - rho_vi) * chi_nu_zeta +  (exp(B) /exp(Y)  -exp(steady_state(B))/ exp(steady_state(Y)) ) * (1 - rho_vi) * chi_nu_y;
- %========================================================================================================================================================================================================================
+%@#if norm == "static"
+%     % Norme Statique
+%     exp(vi) = vi_ss;  % Situation statique, vi est fixé à sa valeur stationnaire
+%@#endif 
+
+%@#if norm == "dynamic"
+%    % Norme Dynamique
+%*/
+ exp(vi) = exp(vi(-1)) * rho_vi + vi_bar * (1 - rho_vi) +  (0.5 * exp(zeta_e) + 0.5 * exp(zeta_i) - zeta_bar ) * (1 - rho_vi) * chi_nu_zeta +  (exp(B) /exp(Y)  -exp(steady_state(B))/ exp(steady_state(Y)) ) * (1 - rho_vi) * chi_nu_y;
+
+%@#endif
+%========================================================================================================================================================================================================================
 
 ////***********  6)RETAILERS **************************************************************
 
@@ -514,21 +535,26 @@ RatioCap  = exp(K_m)/exp(B);
 bm      = log (exp(b_h)/( exp(b_h)+exp(b_e)) * exp(r_bh) + exp(b_e)/( exp(b_h)+exp(b_e)) * exp(r_be) - exp(r_d));
 spr_b   = log( 0.5*exp(r_bh) + 0.5*exp(r_be) - exp(r_d)); 
 
-/*
-interestPol   = 400*exp(r_ib); 
-interestH     = 400*exp(r_bh);
-interestF     = 400*exp(r_be);                                         
-inflation     = pie*100;    
-loansH        = BH*100;
-loansF        = BE*100;
-output        = Y1*100; 
-consumption   = C*100;
-investment    = I*100;   
-deposits      = D*100;
-interestDep   = 400*(exp(r_d));
-IMFcapital    = 100*K_m;                 
-ROA           = exp(J_m)/exp(B) ;       
-*/
+// INTEREST RATES (Annualized Percentage)
+interestPol   = 400 * exp(r_ib);  
+interestH     = 400 * exp(r_bh);
+interestF     = 400 * exp(r_be);                                           
+interestDep   = 400 * exp(r_d);
+
+// MACRO AGGREGATES (Levels scaled by 100)
+output        = exp(Y1) * 100; // Use Y (Total Output) not just sector Y1
+consumption   = exp(C) * 100;
+investment    = exp(I) * 100;   
+deposits      = exp(D) * 100;
+loansH        = exp(BH) * 100;
+loansF        = exp(BE) * 100;
+
+// BANKING METRICS
+IMFcapital    = exp(K_m) * 100;                  
+ROA           = exp(J_m) / exp(B); 
+
+// RATES (Already in net terms, just annualize)
+inflation     = pie * 400;
 //**************************************************************************
 
 end;
@@ -562,35 +588,7 @@ shocks;
     var e_y       = 1.0099^2;  
     var e_l       = 0.3721^2;  
     var e_eps_K_m = 0.637^2;   
-    var e_zeta_e  = 0.050^2;   
-    var e_zeta_i  = 0.050^2;   
+    var e_zeta_e  = (0.050/4)^2;   
+    var e_zeta_i  = (0.050/4)^2;   
 end;
-/*
-%% Configuration de la simulation 
-%% Définition des chocs
-shock_matrix = zeros(options_.irf, M_.exo_nbr);
-
-%choc négative sur la productivité des entreprises
-shock_matrix(1, strmatch('e_A_e', M_.exo_names, 'exact')) = -0.01;
-
-% Choc fonds propres (en réponse à une augmentation de la production)
-%shock_matrix(2, strmatch('e_eps_K_m', M_.exo_names, 'exact')) =  -log(1 + (1-rho_zeta)*chi_zeta_y); % (1-rho_zeta)*chi_zeta_y = 0.985826
-
-% Conditions initiales
-initial_condition_states = repmat(oo_.dr.ys, 1, M_.maximum_lag);
-
-% Chemin de sauvegarde
-save_path = 'D:/personal/DGTCP-Stage/Memoire 1/selected articles/Seuil';
-
-% Exécution de la fonction multi-chocs
-IRF_all_sc1 = run_IRF(M_, oo_, options_, initial_condition_states, shock_matrix, save_path);
-*/
-
-//stoch_simul(order=1, irf=20) interestPol interestH interestF inflation loansH loansF output consumption investment deposits interestDep;
-//stoch_simul(order=1, irf=20, irf_shocks=(e_j) );
-//stoch_simul(order=1, irf=10) interestPol interestH interestF inflation loansH loansF output ;
-
-
-%stoch_simul(hp_filter=6.25, order=1, irf=20) r_bh zeta_e zeta_i ;
-
 
