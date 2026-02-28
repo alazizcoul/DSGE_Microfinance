@@ -83,6 +83,7 @@ bm        // 66 IMFs intermediation margins
 spr_b     // 67 average bank spread (active-passive) (67-3 = 64)
 zeta_e
 zeta_i
+zeta
 vi 
 
 %//**************************************************************************
@@ -91,7 +92,7 @@ vi
   loansH loansF output consumption investment deposits interestDep IMFcapital;
 %//**************************************************************************
 
-varexo  e_zeta_e e_zeta_i  e_A_e e_eps_K_m e_l e_me e_mi e_mk_be e_mk_bh e_mk_d e_r_ib e_qk e_y e_z;   //14  
+varexo  e_vi e_zeta_e e_zeta_i  e_A_e e_eps_K_m e_l e_me e_mi e_mk_be e_mk_bh e_mk_d e_r_ib e_qk e_y e_z;   //14  
   
 parameters  
             beta_p  phi beta_i m_i_ss beta_e m_e_ss alpha eksi_1 eksi_2     // HOUSEHOLDS & ENTREPRENEURS , j
@@ -149,31 +150,33 @@ r_bh_ss      = (r_ib_ss + zeta_i_ss)*eps_bh/((eps_bh-1)*(1 - zeta_i_ss)) ;						
 %%%% EVOLUTION de r_ib%%%%%%%%%%
 rho_ib      =	0.513821 ;   
 phi_pie     =   1.9;
-phi_y       =	-0.16 ; %-0.16086462
+phi_y       =	-0.16 ;   
 
 % POLITIQUE MACRO PRUDENTIELLE
 % =============Paremètres d'évolution du risque de crédit(RC)=========
-rho_zeta_e    = 0.838502 ;   % persistence du RC
-rho_zeta_i    = 0.838502 ;   % persistence du RC
+rho_zeta_e    = 0.85 ;   % persistence du RC
+rho_zeta_i    = 0.85 ;   % persistence du RC
 
 % =============Règle d'évolution de la norm de capitalisation========
 
-vi_ss       = 0.125 ;    % (Niveau stat de K/B)
-vi_bar      = vi_ss  ;    % Pour assurer vi_ss de niveau stat pour la norme de cap
-zeta_bar    = zeta_e_ss; % zeta_e_ss = zeta_i_ss;     % Niveau cible (stationnaire) du risque de crédit pour l'AM
 @#if norm == "static"
     % Norme Statique
-    rho_vi      = 1 ; % (Norme totatlement persistente(0 : Etat stat persistent / 1: persistence de la norme....)   
+    vi_ss       = 0.125 ;    % (Niveau stat de K/B)
+    rho_vi      = 0 ; % (Norme totatlement persistente(0 : Etat stat persistent / 1: persistence de la norme....)   
     chi_nu_zeta = 0 ; % l'Autorité Macroprudentielle est totalement insensible par rapport au risque de crédit
     chi_nu_y    = 0 ; % l'Autorité Macroprudentielle est totalement insensible par rapport au niveau des prêts/PIB
 @#endif 
 @#if norm == "dynamic"
     % Norme Dynamique
-    rho_vi      = 0.85 ;     % 0.96264 persistence de la norme de solvabilité
-    chi_nu_zeta = 1/3; % 1/3 (augmentation du risque DE 3 points entraine une augmenttion de l'exigence de 1 point  % Sensibilité de l'Autorité Macroprudentielle par rapport au risque de crédit
-    chi_nu_y    = 0.002574401 ;  % ; %limite = 0.2; %est 0.002574401; % Sensibilité de l'Autorité Macroprudentielle par rapport niveau des prêts/PIB
-
+    vi_ss       = 0.125 ;    % (Niveau stat de K/B)
+    rho_vi      = 0.85 ;     %0.84 persistence de la norme de solvabilité
+    chi_nu_zeta = 0.5/(1 -rho_vi) ; % (augmentation du risque DE 1 point entraine une augmenttion de l'exigence de 0.5 point  % Sensibilité de l'Autorité Macroprudentielle par rapport au risque de crédit
+    chi_nu_y    = 0.025/(1-rho_vi) ; % Sensibilité de l'Autorité Macroprudentielle par rapport niveau des prêts/PIB
 @#endif
+
+vi_bar      = vi_ss  ;    % Pour assurer vi_ss de niveau stat pour la norme de cap
+zeta_bar    = zeta_e_ss; % zeta_e_ss = zeta_i_ss;     % Niveau cible (stationnaire) du risque de crédit pour l'AM
+
 %=========================================================================================================================================================================================================
 
 %=========================================================================================================================================================================================================
@@ -222,9 +225,9 @@ kappa_bh    = 15.0000; % Taux Crédit Ménages SFD : Très rigides
 kappa_km    = 25.0000; % CRUCIAL : Très coûteux pour un SFD de se recapitaliser
 
 % === Comportement des Agents ===
-a_i         = 0.5500; % Habitudes de consommation : Faibles pour les clients SFD
-a_e         = 0.5500; % (Les agents n'ont pas assez d'épargne pour lisser)
-a_p         = 0.5500; 
+a_i         = 0.600; % Habitudes de consommation : Faibles pour les clients SFD
+a_e         = 0.600; % (Les agents n'ont pas assez d'épargne pour lisser)
+a_p         = 0.600; 
 ind_p       = 0.1500; % Indexation prix : Faible en zone CFA
 ind_w       = 0.2000; % Indexation salaires : Faible
 
@@ -235,6 +238,39 @@ rho_mk_d    = 0.7000; % Persistance du markup sur les dépôts
 rho_mk_bh   = 0.8500; % Persistance du markup sur les prêts aux ménages
 rho_ee_qk   = 0.5500; % Persistance du choc sur le prix de l'actif (collatéral)
 
+/*
+
+load median_values.txt;
+coeffs = median_values;
+
+rho_ee_z	=	coeffs(1);  % 0.385953438168178	;
+rho_A_e     =	coeffs(2);  % 0.93816527333294	;
+//rho_ee_j	=	coeffs(3);  % 0.921872719102206	;
+rho_me      =	coeffs(4);  % 0.90129485520182	;
+rho_mi      =	coeffs(5);  % 0.922378382753078	;
+rho_mk_d	=	coeffs(6);  % 0.892731352899547	;
+rho_mk_bh	=	coeffs(7);  % 0.851229673864555	;
+rho_mk_be	=	coeffs(8);  % 0.873901213475799	;
+rho_ee_qk	=	coeffs(9);  % 0.571692383714171	;
+rho_eps_y	=	coeffs(10); % 0.294182239567384	;
+rho_eps_l	=	coeffs(11); % 0.596186440884132	;
+rho_eps_K_m	=	coeffs(12); % 0.813022758608552	;
+kappa_p     =	coeffs(13); % 33.7705265016395	;
+kappa_w     =	coeffs(14); % 107.352040072465	;
+kappa_i     =	coeffs(15); % 10.0305562248008	;
+kappa_d     =	coeffs(16); % 2.77537377104213	;
+kappa_be	=	coeffs(17); % 7.98005959044637	;
+kappa_bh	=	coeffs(18); % 9.04426718749482	;
+kappa_km	=	coeffs(19); % 8.91481958034669	;
+%===phi_pie     =   2;  % coeffs(20); % 2.00384780180824  ;
+%===rho_ib      =	0.508944;   % 0.750481873084311	;
+%===phi_y       =	-0.157796667; % 0.303247771697294	;
+ind_p       =	coeffs(23); % 0.158112794106546	;
+ind_w       =	coeffs(24); % 0.300197804017489	;
+a_i	        =	coeffs(25); % 0.867003766306404	;
+a_e         =   coeffs(25) ;% 0.0     ;   % degree of habit formation: entrepreneurs
+a_p         =   coeffs(25); %0.0     ;   % degree of habit formation: patient households
+*/
 
 //%------------------------------------------------------------
 //% Model equations
@@ -378,7 +414,7 @@ exp(j_m) = +((1 -exp(zeta_i))* exp(r_bh) - exp(zeta_i))*  exp(b_h)
 %@#if norm == "dynamic"
 %    % Norme Dynamique
 %*/
- exp(vi) = exp(vi(-1)) * rho_vi + vi_bar * (1 - rho_vi) +  (0.5 * exp(zeta_e) + 0.5 * exp(zeta_i) - zeta_bar ) * (1 - rho_vi) * chi_nu_zeta +  (exp(B) /exp(Y)  -exp(steady_state(B))/ exp(steady_state(Y)) ) * (1 - rho_vi) * chi_nu_y;
+ exp(vi) = exp(vi(-1)) * rho_vi + exp(e_vi) * vi_bar * (1 - rho_vi) +  (0.5 * exp(zeta_e) + 0.5 * exp(zeta_i) - zeta_bar ) * (1 - rho_vi) * chi_nu_zeta +  (exp(B) /exp(Y)  -exp(steady_state(B))/ exp(steady_state(Y)) ) * (1 - rho_vi) * chi_nu_y ;
 
 %@#endif
 %========================================================================================================================================================================================================================
@@ -413,7 +449,7 @@ exp(Y)              = gamma_e * exp(y_e); //
 //                      + kappa_bh/2 * ( (exp(r_bh(-1))/exp(r_bh(-2))-1)^2) * exp(r_bh(-1))*exp(b_h(-1))
 //                         ;  //
 exp(PIW)            = ( exp(w_p) + exp(w_i) )  / ( exp(w_p(-1)) + exp(w_i(-1)) ) * exp(pie);
-
+exp(zeta)           = ( 0.5 * exp(zeta_e) + 0.5 * exp(zeta_i) );
 
 ////***********  8) TAYLOR RULE & PROFITS CB *****************************************************                                                  
 
@@ -436,8 +472,8 @@ exp(eps_l)    = (1-rho_eps_l)  * eps_l_ss      + rho_eps_l  * exp(eps_l(-1))   +
 exp(eps_K_m)  = (1-rho_eps_K_m)*    1          + rho_eps_K_m* exp(eps_K_m(-1)) + e_eps_K_m;
 
 
-exp(zeta_e) =   rho_zeta_e*  (exp(zeta_e(-1))) + (1-rho_zeta_e)*zeta_e_ss  + e_zeta_e; 
-exp(zeta_i) =   rho_zeta_i*  (exp(zeta_i(-1))) + (1-rho_zeta_i)*zeta_i_ss  + e_zeta_i; 
+exp(zeta_e)   = (1-rho_zeta_e) * zeta_e_ss     +  rho_zeta_e* exp(zeta_e(-1))  + e_zeta_e; 
+exp(zeta_i)   = (1-rho_zeta_i) * zeta_i_ss     +  rho_zeta_i* exp(zeta_i(-1))  + e_zeta_i; 
 
 
 ////***********  10) AUXILIARY VARIABLES *****************************************************4
@@ -458,6 +494,7 @@ ee_z  =  log(1);
 A_e = log(1);
 ee_qk  =  log(1);
 eps_K_m  =  log(1);
+
 pie_wp  = log (1) ; 
 pie_wi = log(1);
 pie = log(piss) ;
@@ -473,6 +510,7 @@ eps_y  = log(eps_y_ss);
 eps_l  = log(eps_l_ss);
 zeta_i   = log(zeta_i_ss);
 zeta_e   = log(zeta_e_ss);
+zeta     = log((0.5 * exp(zeta_e) + 0.5 * exp(zeta_i)));
 vi   =   log(vi_ss);
 r_k  = log(r_k_ss) ;
 
@@ -520,8 +558,8 @@ s_e = log ( exp(lam_e)* ( 1/(1 + exp(r_be)) - beta_e * (1 - exp(zeta_e) ) ) );
 //s_e = log ( exp(lam_e) * ( 1 -beta_e * (1 - deltak + exp(r_k))  )/(exp(m_e) (1 - deltak))) ;
 
 b_ee = b_e ;
-d_b = d_p ;
-b_h = b_i; 
+d_b  = d_p ;
+b_h  = b_i; 
 
 C     = log (exp(c_e)  + exp(c_p) + exp(c_i));
 Y     = log (gamma_e * exp(y_e)) ;
@@ -564,9 +602,9 @@ end;
 // 1. Calcul de l'état stationnaire
 // ========================================
 
-model_diagnostics ;
-steady;
-check;
+%model_diagnostics ;
+%steady;
+%check;
 
 % Afficher l'ordre des variables
 % M_.endo_names
@@ -576,19 +614,34 @@ check;
 // 2. Définition des chocs exogènes (variances)
 // ========================================
 shocks;
-    var e_z       = 0.0144^2;  
-    var e_A_e     = 0.0062^2;  
-    var e_me      = 0.0034^2;  
-    var e_mi      = 0.0023^2;  
-    var e_mk_d    = 0.0488^2;  
-    var e_mk_bh   = 0.0051^2;  
-    var e_mk_be   = 0.1454^2;  
-    var e_qk      = 0.0128^2;  
-    var e_r_ib    = 0.0018^2;  
-    var e_y       = 1.0099^2;  
-    var e_l       = 0.3721^2;  
-    var e_eps_K_m = 0.637^2;   
-    var e_zeta_e  = (0.050/4)^2;   
-    var e_zeta_i  = (0.050/4)^2;   
+    % --- Chocs utilisés dans le script de comparaison ---
+    var e_A_e     = (0.02)^2;     % Productivité
+    var e_zeta_e  = ((1-1/4)*0.05/4)^2;  % Risque de crédit (Entrepreneurs)
+    var e_zeta_i  = ((1-1/4)*0.05/4)^2;  % Risque de crédit (Ménages)
+    var e_vi      = (log(0.15/(vi_bar * (1 - rho_vi))))^2;
+    var e_eps_K_m = ( 1/1.16 - 1 )^2;      % log(vi_ss/(0.050/4)) Fonds propres bancaires  log(1/(1 + 0.14))
+
+    % --- Chocs non utilisés (mis en commentaire) ---
+    % var e_z       = 0.0144^2;   % Préférences
+    % var e_me      = 0.0034^2;   % LTV Entrepreneurs
+    % var e_mi      = 0.0023^2;   % LTV Ménages
+    % var e_mk_d    = 0.0488^2;   % Markup dépôts
+    % var e_mk_bh   = 0.0051^2;   % Markup prêts H
+    % var e_mk_be   = 0.1454^2;   % Markup prêts E
+    % var e_qk      = 0.0128^2;   % Prix des actifs (Tobin's Q)
+    % var e_r_ib    = 0.0018^2;   % Politique monétaire
+    % var e_y       = 1.0099^2;   % Offre (PIB)
+    % var e_l       = 0.3721^2;   % Offre (Travail)
 end;
 
+% *************************************************************************
+% RÉSOLUTION ET SIMULATION DU MODÈLE
+% *************************************************************************
+
+// On définit les variables d'intérêt pour la résolution
+// order=1 : Linéarisation (standard pour l'analyse de stabilité)
+// irf=0 : On ne laisse pas Dynare tracer les graphiques, MATLAB s'en charge
+// noprint : Pour garder une console propre pendant la boucle de scénarios
+
+stoch_simul(order=1, periods=0, irf=0, noprint) Y C I B K_m vi r_be r_bh zeta_e zeta_i zeta pie RatioCap spr_b output consumption investment loansH loansF deposits IMFcapital interestPol interestH interestF interestDep inflation ROA;
+%stoch_simul(order=1, irf=40) Y C I B K_m vi r_be r_bh zeta_e zeta_i pie;
